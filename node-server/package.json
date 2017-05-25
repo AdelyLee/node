@@ -7,7 +7,9 @@
   },
   "author": "lyc",
   "dependencies": {
+    "canvas": "^1.6.5",
     "deasync": "^0.1.9",
+    "echarts": "^3.5.3",
     "express": "^4.15.2",
     "fs": "0.0.1-security",
     "request": "^2.81.0"

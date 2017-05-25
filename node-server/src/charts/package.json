@@ -1,9 +1,0 @@
-{
-  "name": "node-service",
-  "version": "0.0.1",
-  "main": "./lib/index.js",
-  "private": true,
-  "dependencies": {
-    "echarts": "^3.5.3"
-  }
-}

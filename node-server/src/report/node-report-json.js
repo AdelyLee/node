@@ -5,49 +5,23 @@
 var http = require('http');
 var builder = require('./BriefingBuilder.js');
 var service = require('./decisionReport.js');
+var fs = require('fs');
+var node_echarts = require('../charts/index.js');
 
-http.get('http://localhost:8090/static/api/briefing.json', (res) => {
-    const statusCode = res.statusCode;
-    const contentType = res.headers['content-type'];
+exports.getBriefingJson = function(file) {
+    // get the default briefing json data
+    var briefingData = fs.readFileSync(file, 'utf8');
+    let briefingObj = JSON.parse(briefingData);
 
-    let error;
-    if (statusCode !== 200) {
-        error = new Error(`Request Failed.\n` +
-            `Status Code: ${statusCode}`);
-    } else if (!/^application\/json/.test(contentType)) {
-        error = new Error(`Invalid content-type.\n` +
-            `Expected application/json but received ${contentType}`);
-    }
-    if (error) {
-        console.log(error.message);
-        // consume response data to free up memory
-        res.resume();
-        return;
-    }
+    // 处理数据
+    briefingObj = mikeBriefing(briefingObj);
 
-    res.setEncoding('utf8');
-    let rawData = '';
-    res.on('data', (chunk) => rawData += chunk);
-    res.on('end', () => {
-        try {
-            let briefingObj = JSON.parse(rawData);
-            // 处理数据
+    builder.briefingDirector.createBriefing(briefingObj);
+    var briefingBuilder = builder.briefingBuilder;
+    var briefing = briefingBuilder.briefing;
 
-            briefingObj = mikeBriefing(briefingObj);
-
-            builder.briefingDirector.createBriefing(briefingObj);
-            var briefingBuilder = builder.briefingBuilder;
-            var briefing = briefingBuilder.briefing;
-
-            console.log("briefing", JSON.stringify(briefing));
-
-        } catch (e) {
-            console.log(e.message);
-        }
-    });
-}).on('error', (e) => {
-    console.log(`Got error: ${e.message}`);
-});
+    return　JSON.stringify(briefing);
+};
 
 function mikeBriefing(briefingObj) {
     var briefingBodyArray = briefingObj.briefingBody;
@@ -67,6 +41,18 @@ function mikeBriefingCell(briefingCellObj) {
     if (method != "" && method != undefined) {
         option = service[method]();
         briefingCellObj.option = option;
+
+        // according to the option create the image
+        node_echarts({
+            path: __dirname + '/images/' + briefingCellObj.chartId + '.png',
+            option: option,
+            width:  800,
+            height: 500
+        });
+
+        // get the image switch to base64
+        var file = __dirname + '/images/' + briefingCellObj.chartId + '.png';
+        briefingCellObj.imageUrl = base64_encode(file);
     }
     var briefingCellChildren = briefingCellObj.children;
     var briefingCells = [];
@@ -81,3 +67,9 @@ function mikeBriefingCell(briefingCellObj) {
     return briefingCellObj;
 }
 
+function base64_encode(file) {
+    // read binary data
+    var bitmap = fs.readFileSync(file);
+    // convert binary data to base64 encoded string
+    return new Buffer(bitmap).toString('base64');
+}

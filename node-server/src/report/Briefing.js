@@ -4,7 +4,8 @@
  * Briefing 实体类
  */
 const Briefing = {
-    constructor(title, subTitle, author, createTime, outline, issue, briefingBody, summary) { //构造函数
+    constructor(type, title, subTitle, author, createTime, outline, issue, briefingBody, summary) { //构造函数
+        this.type = type;
         this.title = title;
         this.subTitle = subTitle;
         this.author = author;
@@ -13,6 +14,14 @@ const Briefing = {
         this.outline = outline;
         this.briefingBody = briefingBody;
         this.summary = summary;
+    },
+
+    getType() {
+        return this.type;
+    },
+
+    setType(type) {
+        this.type = type;
     },
 
     getTitle() {

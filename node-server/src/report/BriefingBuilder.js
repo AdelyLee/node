@@ -11,6 +11,10 @@ var BriefingBody = require('./BriefingBody.js');
 const briefingBuilder = {
     briefing: Briefing,
 
+    buildType: function (type) {
+        this.briefing.type = type;
+    },
+
     buildTitle: function (title) {
         this.briefing.title = title;
     },
@@ -52,7 +56,8 @@ const briefingDirector = {
     briefingBuilder: briefingBuilder,
     createBriefing: function(briefing){
         var briefingBuilder = this.briefingBuilder;
-        // 先构造简报Title
+        // 先构造简报
+        briefingBuilder.buildType(briefing.type);
         briefingBuilder.buildTitle(briefing.title);
         briefingBuilder.buildSubTitle(briefing.subTitle);
         briefingBuilder.buildAuthor(briefing.author);
