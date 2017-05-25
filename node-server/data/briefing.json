@@ -15,6 +15,7 @@
             "option": {},
             "description": "",
             "children": [],
+            "chartType": "pie",
             "chartId": "article-type-pie-chart",
             "method": "getArticleTypeChart"
         },{
@@ -24,6 +25,7 @@
             "option": {},
             "children": [],
             "description": "",
+            "chartType": "bar",
             "chartId": "accident-area-chart",
             "method": "getAccidentAreaChart"
         },{
@@ -33,6 +35,7 @@
             "option": {},
             "children": [],
             "description": "",
+            "chartType": "line",
             "chartId": "article-trend-chart",
             "method": "getArticleTrendChart"
         },{
@@ -42,6 +45,7 @@
             "option": {},
             "children": [],
             "description": "",
+            "chartType": "bar",
             "chartId": "news-hot-point",
             "method": "getArticleHotPointChart"
         },{
@@ -58,6 +62,7 @@
             "option": {},
             "description": "",
             "children": [],
+            "chartType": "pie",
             "chartId": "news-emotion-pie-chart",
             "method": "getNewsEmotionPieChart"
         },{
@@ -67,6 +72,7 @@
             "option": {},
             "description": "",
             "children": [],
+            "chartType": "bar",
             "chartId": "media-bar-chart",
             "method": "getMediaBarChart"
         },{
@@ -76,6 +82,7 @@
             "option": {},
             "description": "",
             "children": [],
+            "chartType": "keywordsCloud",
             "chartId": "hot-keywords-chart",
             "method": ""
         }]
@@ -89,6 +96,7 @@
             "option": {},
             "description": "",
             "children": [],
+            "chartType": "bar",
             "chartId": "month-accident-bar-chart",
             "method": "getMonthAccidentChart"
         },{
@@ -103,6 +111,7 @@
                 "option": {},
                 "description": "",
                 "children": [],
+                "chartType": "pie",
                 "chartId": "accident-type-pie-chart",
                 "method": "getAccidentTypeChart"
             },{
@@ -112,6 +121,7 @@
                 "option": {},
                 "description": "",
                 "children": [],
+                "chartType": "map",
                 "chartId": "accident-map-chart",
                 "method": "getAccidentMapChart"
             }]
@@ -127,6 +137,7 @@
                 "option": {},
                 "description": "",
                 "children": [],
+                "chartType": "pie",
                 "chartId": "comment-pie-chart",
                 "method": ""
             },{
@@ -136,6 +147,7 @@
                 "option": {},
                 "description": "",
                 "children": [],
+                "chartType": "keywordsCloud",
                 "chartId": "comment-keywords-chart",
                 "method": ""
             }]

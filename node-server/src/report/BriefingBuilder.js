@@ -92,6 +92,10 @@ const briefingCellBuilder = {
         this.briefingCell.children = children;
     },
 
+    buildChartType: function (chartType) {
+        this.briefingCell.chartType = chartType;
+    },
+
     buildChartId: function (chartId) {
         this.briefingCell.chartId = chartId;
     },
@@ -114,28 +118,9 @@ const briefingCellDirector = {
         briefingCellBuilder.buildImageUrl(briefingCell.imageUrl);
         briefingCellBuilder.buildDescription(briefingCell.description);
         briefingCellBuilder.buildChildren(briefingCell.children);
+        briefingCellBuilder.buildChartType(briefingCell.chartType);
         briefingCellBuilder.buildChartId(briefingCell.chartId);
         briefingCellBuilder.buildMethod(briefingCell.method);
-    }
-};
-
-var BriefingBodyBuilder = function () {
-    var briefingBody = new BriefingBody();
-
-    buildBriefingCells = function (briefingCells) {
-        briefingBody.briefingCells = briefingCells;
-    };
-
-    getBriefingBody = function () {
-        return briefingBody;
-    };
-};
-
-var BriefingBodyDirector = function () {
-    var briefingBodyBuilder = new BriefingBodyBuilder();
-    createBriefingBody = function(briefingCells){
-        // 先构造简报Title
-        briefingBodyBuilder.buildBriefingCells(briefingCells);
     }
 };
 
@@ -144,9 +129,5 @@ const builder = {
     briefingDirector: briefingDirector,
     briefingCellBuilder: briefingCellBuilder,
     briefingCellDirector: briefingCellDirector
-    // briefingBodyBuilder: BriefingBodyBuilder(),
-    // briefingBodyDirector: BriefingBodyDirector()
 };
 module.exports = builder;
-// {BriefingBuilder, BriefingDirector, BriefingCellBuilder, BriefingCellDirector, BriefingBodyBuilder, BriefingBodyDirector};
-// export {BriefingBuilder, BriefingDirector, BriefingCellBuilder, BriefingCellDirector, BriefingBodyBuilder, BriefingBodyDirector}
