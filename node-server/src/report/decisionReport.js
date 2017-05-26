@@ -29,12 +29,17 @@ const actions = {
                 isReturn = true;
 
                 // 拼装 chart option
+                var total = 0;
                 var seriesData = [];
                 for (var item of body) {
-                    var node = {};
-                    node.name = utils.resetArticleTypeName(item.key);
-                    node.value = item.value;
-                    seriesData.push(node);
+                    if (item.key != 'article') {
+                        var node = {};
+                        node.name = utils.resetArticleTypeName(item.key);
+                        node.value = item.value;
+                        seriesData.push(node);
+                    } else {
+                        total = item.value;
+                    }
                 }
 
                 var option = {
@@ -61,7 +66,18 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                // make ArticleTypeChart description
+                var itemsStr = "";
+                seriesData.forEach(function (item, i) {
+                    if (i < 3) {
+                        itemsStr += "<span class='describe-redText'>" + item.name + item.value + "(" + (item.value * 100 / total).toFixed(2) + "%)</span>、";
+                    }
+                });
+                itemsStr = itemsStr.substring(0, itemsStr.length - 1) + "。";
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对数据载体进行分析，共抓取数据<span class='describe-redText'>" + total + "</span>条，其中排名前三的为" + itemsStr + "</div>";
+
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             }
         });
 
@@ -80,7 +96,6 @@ const actions = {
                 "endDate": "2017-02"
             },
             "page": {
-                "limit": 6,
                 "orders": [
                     {
                         "direction": "DESC",
@@ -102,21 +117,27 @@ const actions = {
                 "content-type": "application/json",
             },
             body: param
-        }, function (error, response, body) {
+        }, function (error, response, data) {
             if (!error && response.statusCode == 200) {
                 console.log('http request return!');
                 isReturn = true;
 
                 // 拼装 chart option
-                var seriesData = [];
-                var yAxisData = [];
-                body = body.sort(function (a, b) {
-                    return a.count - b.count;
+                var total = 0, seriesData = [], yAxisData = [];
+                data = data.sort(function (a, b) {
+                    return b.count - a.count;
                 });
-                for (var item of body) {
-                    seriesData.push(item.count);
-                    yAxisData.push(item.id);
-                }
+                data.forEach(function (item, i) {
+                    total += item.count;
+                    if (i < 6) {
+                        seriesData.push(item.count);
+                        yAxisData.push(item.id);
+                    }
+                });
+                // 实现数据反转
+                seriesData.reverse();
+                yAxisData.reverse();
+
                 var option = {
                     legend: {},
                     yAxis: {
@@ -158,7 +179,19 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                // make ArticleTypeChart description
+                var itemsStr = "";
+                data.forEach(function (item, i) {
+                    if (i < 6) {
+                        itemsStr += "<span class='describe-redText'>" + item.id + item.count + "(" + (item.count * 100 / total).toFixed(2) + "%)</span>、";
+                    }
+                });
+                itemsStr = itemsStr.substring(0, itemsStr.length - 1) + "。";
+
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对本月事故情况进行分析，共发生事故<span class='describe-redText'>" + total + "</span>起，其中发生较多的省份为" + itemsStr + "</div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
+
             } else {
                 console.log("get getAccidentAreaChart data error");
             }
@@ -188,38 +221,61 @@ const actions = {
             headers: {
                 "content-type": "application/json",
             }
-        }, function (error, response, body) {
+        }, function (error, response, data) {
             if (!error && response.statusCode == 200) {
                 console.log('http request return!');
                 isReturn = true;
-                var seriesData_a = [];
-                var seriesData_b = [];
-                var xAxisData = [];
-                var heatMax_a = [], heatMax_b = [];
-                for (var item of body) {
-                    var node = {};
-                    var nodes = {};
+
+                var total_a = 0, total_b = 0, seriesData_a = [], seriesData_b = [], xAxisData = [], xAxisData_a = [], xAxisData_b = [], indexOfMax_a = {}, indexOfMin_a = {}, indexOfMax_b = {}, indexOfMin_b = {}, legendData = [];
+                var s_dateArray = param.s_date.split("-");
+                var e_dateArray = param.e_date.split("-");
+                var e_date = "";
+                if (parseInt(e_dateArray[1]) < 11) {
+                    e_date = e_dateArray[0] + "-0" + (parseInt(e_dateArray[1]) - 1);
+                } else {
+                    e_date = e_dateArray[0] + "-" + (parseInt(e_dateArray[1]) - 1);
+                }
+                var startDate = s_dateArray[0] + "年" + s_dateArray[1] + "月";
+                var endDate = e_dateArray[0] + "年" + parseInt(e_dateArray[1] - 1) + "月";
+                legendData.push(startDate);
+                legendData.push(endDate);
+
+                for (var item of data) {
                     var month_name = item.key.substr(0, 7);
-                    if (month_name == "2017-02") {
-                        node.name = item.key.substr(8);
-                        node.value = item.value;
-                        heatMax_a = item.value;
-                        seriesData_a.push(node);
-                    } else if (month_name == "2017-03") {
-                        xAxisData.push(item.key.substr(8));
-                        nodes.name = item.key.substr(8);
-                        nodes.value = item.value;
-                        heatMax_b = item.value;
-                        seriesData_b.push(nodes);
+                    if (month_name == param.s_date) {
+                        xAxisData_a.push(item.key.substr(8));
+                        seriesData_a.push(item.value);
+                    } else if (month_name == e_date) {
+                        xAxisData_b.push(item.key.substr(8));
+                        seriesData_b.push(item.value);
                     }
                 }
+                // 以天数长的月份作为横轴坐标
+                if (xAxisData_a.length > xAxisData_b.length) {
+                    xAxisData = xAxisData_a;
+                } else {
+                    xAxisData = xAxisData_b;
+                }
+                // 获取数据的最高点和最地点
+                indexOfMax_a = seriesData_a.indexOf(Math.max.apply(Math, seriesData_a));
+                indexOfMin_a = seriesData_a.indexOf(Math.min.apply(Math, seriesData_a));
+
+                indexOfMax_b = seriesData_b.indexOf(Math.max.apply(Math, seriesData_b));
+                indexOfMin_b = seriesData_b.indexOf(Math.min.apply(Math, seriesData_b));
+                // 获取所有数据总数
+                seriesData_a.forEach(function (value) {
+                    total_a += value;
+                });
+                seriesData_b.forEach(function (value) {
+                    total_b += value;
+                });
 
                 var option = {
                     legend: {
                         x: 'right',
                         y: 'middle',
                         orient: 'vertical',
-                        data: ['2017年2月', '2017年3月']
+                        data: legendData
                     },
                     grid: {
                         left: '4%',
@@ -232,33 +288,52 @@ const actions = {
                         type: 'category',
                         boundaryGap: false,
                         data: xAxisData,
+                        axisLabel: {
+                            textStyle: {
+                                fontWeight: 700,
+                                fontSize: 16
+                            }
+                        }
                     },
                     yAxis: {
                         type: 'value',
                         axisLabel: {
                             interval: 0,
-                            rotate: 35,
                             textStyle: {
                                 fontWeight: 600,
-                                fontSize: 14
+                                fontSize: 18
                             }
                         }
                     },
                     series: [
                         {
-                            name: '2017年2月',
+                            name: startDate,
                             type: 'line',
                             data: seriesData_a
                         },
                         {
-                            name: '2017年3月',
+                            name: endDate,
                             type: 'line',
                             data: seriesData_b
                         }
                     ]
                 };
 
-                renderData = option;
+                // make ArticleTypeChart description
+                var description = '<div class="describe-text">根据最新舆情分析, ' + parseInt(e_dateArray[1] - 1)
+                    + '月份中，共抓取互联网数据<span class="describe-redText">' + total_b
+                    + '</span>条，其中<span class="describe-redText">' + parseInt(indexOfMax_b + 1)
+                    + '</span>日热度最高，共有数据<span class="describe-redText">' + seriesData_b[indexOfMax_b] + '</span>条。'
+                    + '<span class="describe-redText">' + parseInt(indexOfMin_b + 1)
+                    + '</span>日最低，共有数据<span class="describe-redText">' + seriesData_b[indexOfMin_b] + '</span>条。'
+                    + '环比<span class="describe-redText">' + parseInt(s_dateArray[1]) + '</span>月份，共抓取互联网数据'
+                    + '<span class="describe-redText">' + total_a + '</span>条，其中<span class="describe-redText">' + parseInt(indexOfMax_a + 1)
+                    + '</span>日热度最高，共有数据<span class="describe-redText">' + seriesData_a[indexOfMax_a] + '</span>条。'
+                    + '<span class="describe-redText">' + parseInt(indexOfMin_a + 1)
+                    + '</span>日最低，共有数据<span class="describe-redText">' + seriesData_a[indexOfMin_a] + '</span>条。</div>';
+
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getArticleTrendChart data error");
             }
@@ -287,42 +362,42 @@ const actions = {
             headers: {
                 "content-type": "application/json",
             }
-        }, function (error, response, body) {
+        }, function (error, response, data) {
             if (!error && response.statusCode == 200) {
                 console.log('http request return!');
                 isReturn = true;
 
-                var new_data = [];
-                if (body.length > 6) {
-                    new_data = body.slice(0, 6);
-                } else {
-                    new_data = body;
-                }
                 // 拼装 chart option
+                if (data.length > 6) {
+                    data = data.slice(0, 6);
+                }
+                data = data.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+
                 var seriesData = [];
                 var yAxisData = [];
-                // data = data.sort(function (a, b) {
-                //     return a.value -b.value;
-                // });
-                for (var item of new_data) {
+                for (var item of data) {
                     seriesData.push(item.value);
+                    if (item.key.length > 18) {
+                        item.key = item.key.substring(0, 18) + '...';
+                    }
                     yAxisData.push(item.key);
                 }
                 var option = {
-                    legend: {},
                     yAxis: {
                         type: 'category',
                         data: yAxisData,
                         axisLabel: {
                             textStyle: {
                                 fontWeight: 700,
-                                fontSize: 20
+                                fontSize: 18
                             }
                         }
                     },
                     grid: {
                         left: '10',
-                        right: '10',
+                        right: '30',
                         bottom: '10',
                         top: '10',
                         containLabel: true
@@ -332,7 +407,7 @@ const actions = {
                         axisLabel: {
                             textStyle: {
                                 fontWeight: 700,
-                                fontSize: 20
+                                fontSize: 18
                             }
                         }
                     },
@@ -358,7 +433,20 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                // make description
+                var dataMonth = parseInt(param.s_date.split("-")[1]);
+                var itemStr = "";
+                data = data.reverse();
+                data.forEach(function (item, i) {
+                    if (i < 3) {
+                        itemStr += '<span class="describe-redText">“' + item.key + '” (' + item.value + ')</span>、';
+                    }
+                });
+                itemStr = itemStr.substring(0, itemStr.length - 1);
+                var description = '<div class="describe-text">' + dataMonth + '月份媒体报道情况，从其具体内容方面也可以发现，主要话题集中在'
+                    + itemStr + '等几个方面。</div>';
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getArticleHotPointChart data error");
             }
@@ -392,31 +480,36 @@ const actions = {
                 isReturn = true;
 
                 // 拼装 chart option
-                var seriesData = [];
-                var lengeds = [];
-                var temps = ["正面", "负面", "中性"];
-                for (var j = 0; j < temps.length; j++) {
-                    var node = {value: 0};
-                    for (var item of data) {
-                        node.name = utils.resetEmotionTypeName(item.key);
-                        if (node.name == temps[j]) {
-                            node.value += item.value;
-                        }
-                    }
-                    node.name = temps[j];
+                var seriesData = [], legendData = [];
+                for (var item of data) {
+                    var node = {};
+                    node.name = utils.resetEmotionTypeName(item.key);
+                    node.value = item.value;
                     seriesData.push(node);
-                    lengeds.push(node.name)
+                    legendData.push(node.name)
                 }
 
                 var option = {
+                    title: {
+                        text: '情感分析',
+                        left: 'center',
+                        top: '55%',
+                        textStyle: {
+                            fontSize: 20,
+                            fontWeight: 600
+                        }
+                    },
                     tooltip: {
                         trigger: 'item',
                         formatter: "{a} <br/>{b}: {c} ({d}%)"
                     },
                     legend: {
-                        orient: 'vertical',
                         x: 'right',
-                        data: lengeds
+                        textStyle: {
+                            fontSize: 15,
+                            fontWeight: 500
+                        },
+                        data: legendData
                     },
                     series: [
                         {
@@ -426,7 +519,6 @@ const actions = {
                             label: {
                                 normal: {
                                     show: false,
-                                    // position: 'center',
                                     textStyle: {
                                         fontSize: 20
                                     }
@@ -449,7 +541,17 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                var total = 0;
+                for (var item of seriesData) {
+                    total += item.value;
+                }
+
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对数据情感进行分析，<span class='describe-redText'>" + seriesData[0].name
+                    + "</span>情感最多有<span class='describe-redText'>" + seriesData[0].value + "(" + (seriesData[0].value * 100 / total).toFixed(2) + "%)" + "</span>，"
+                    + "<span class='describe-redText'>" + seriesData[1].name + seriesData[1].value + "(" + (seriesData[1].value * 100 / total).toFixed(2) + "%)" + "</span>，"
+                    + "<span class='describe-redText'>" + seriesData[2].name + seriesData[2].value + "(" + (seriesData[2].value * 100 / total).toFixed(2) + "%)" + "</span>。</div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getNewsEmotionPieChart data error");
             }
@@ -462,6 +564,7 @@ const actions = {
         return renderData;
     },
 
+    // TODO: 接口出错
     //主流媒体
     getMediaBarChart: function () {
         var renderData = {}, isReturn = false;
@@ -540,7 +643,9 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对数据载体进行分析，共抓取数据<span class='describe-redText'></span></div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getMediaBarChart data error");
             }
@@ -574,37 +679,37 @@ const actions = {
                 console.log('http request return!');
                 isReturn = true;
 
-                var new_data = [];
-                if (data.length > 6) {
-                    new_data = data.slice(0, 6);
-                } else {
-                    new_data = data;
-                }
                 // 拼装 chart option
+                if (data.length > 6) {
+                    data = data.slice(0, 6);
+                }
+                data = data.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+
                 var seriesData = [];
                 var yAxisData = [];
-                // data = data.sort(function (a, b) {
-                //     return a.value -b.value;
-                // });
-                for (var item of new_data) {
+                for (var item of data) {
                     seriesData.push(item.value);
+                    if (item.key.length > 18) {
+                        item.key = item.key.substring(0, 18) + '...';
+                    }
                     yAxisData.push(item.key);
                 }
                 var option = {
-                    legend: {},
                     yAxis: {
                         type: 'category',
                         data: yAxisData,
                         axisLabel: {
                             textStyle: {
                                 fontWeight: 700,
-                                fontSize: 20
+                                fontSize: 18
                             }
                         }
                     },
                     grid: {
                         left: '10',
-                        right: '10',
+                        right: '30',
                         bottom: '10',
                         top: '10',
                         containLabel: true
@@ -614,7 +719,7 @@ const actions = {
                         axisLabel: {
                             textStyle: {
                                 fontWeight: 700,
-                                fontSize: 20
+                                fontSize: 18
                             }
                         }
                     },
@@ -640,7 +745,20 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                // make description
+                var dataMonth = parseInt(param.s_date.split("-")[1]);
+                var itemStr = "";
+                data = data.reverse();
+                data.forEach(function (item, i) {
+                    if (i < 3) {
+                        itemStr += '<span class="describe-redText">“' + item.key + '” (' + item.value + ')</span>、';
+                    }
+                });
+                itemStr = itemStr.substring(0, itemStr.length - 1);
+                var description = '<div class="describe-text">' + dataMonth + '月份媒体报道情况，事故與情报道主要话题集中在'
+                    + itemStr + '等几个事故。</div>';
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getMonthAccidentChart data error");
             }
@@ -662,7 +780,6 @@ const actions = {
                 "startDate": "2017-02"
             },
             "page": {
-                "limit": 10,
                 "orders": [{
                     "direction": "DESC",
                     "orderBy": "count"
@@ -689,12 +806,13 @@ const actions = {
                 isReturn = true;
 
                 // 拼装 chart option
-                var seriesData = [];
+                var total = 0, seriesData = [];
                 for (var item of data) {
                     var node = {};
                     node.name = item.id;
                     node.value = item.count;
                     seriesData.push(node);
+                    total += item.count;
                 }
                 var option = {
                     tooltip: {
@@ -707,7 +825,6 @@ const actions = {
                             name: '事故类型',
                             type: 'pie',
                             radius: ['0%', '55%'],
-                            // roseType : 'area',
                             label: {
                                 normal: {
                                     show: true,
@@ -733,8 +850,16 @@ const actions = {
                         }
                     ]
                 };
-
-                renderData = option;
+                var itemStr = "";
+                seriesData.forEach(function (item, i) {
+                    if (i < 5) {
+                        itemStr += "<span class='describe-redText'>" + item.name + "(" + (item.value * 100 / total).toFixed(2) + "%)</span>、";
+                    }
+                });
+                itemStr = itemStr.substring(0, itemStr.length - 1) + "。";
+                var description = "<div class='describe-text'>从本月安全生产事故类型来看，多发事故的类型为" + itemStr + "</div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getAccidentTypeChart data error");
             }
@@ -822,7 +947,9 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对数据载体进行分析，共抓取数据<span class='describe-redText'></span></div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
                 console.log("get getAccidentMapChart data error");
             }
@@ -833,23 +960,6 @@ const actions = {
         }
 
         return renderData;
-
-        return new Promise(function (resolve, reject) {
-            $.ajax({
-                url: common.url.mongodbUrl + '/accident/aggByTypes',
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(param),
-                type: 'post',
-                success: function (data) {
-
-
-                    resolve(option);
-                },
-                error: function (error) {
-                    reject(error);
-                }
-            });
-        });
     },
 
     //相关评论
@@ -1039,9 +1149,11 @@ const actions = {
                     ]
                 };
 
-                renderData = option;
+                var description = "<div class='describe-text'>根据互联网抓取的数据，对数据载体进行分析，共抓取数据<span class='describe-redText'></span></div>";
+                renderData.option = JSON.stringify(option);
+                renderData.description = description;
             } else {
-                console.log("get getMonthAccidentChart data error");
+                console.log("get getCommentPieChart data error");
             }
         });
 
@@ -1051,7 +1163,6 @@ const actions = {
 
         return renderData;
     },
-
 };
 
 const utils = {
@@ -1073,6 +1184,9 @@ const utils = {
             case 'comment':
                 target = '评论';
                 break;
+            case 'weixin':
+                target = '微信';
+                break;
         }
 
         return target;
@@ -1080,23 +1194,15 @@ const utils = {
 
     resetEmotionTypeName: function (source) {
         var type = '';
+        source = source.toLowerCase();
         switch (source) {
             case 'pos':
-                type = '正面';
-                break;
-            case 'POS':
                 type = '正面';
                 break;
             case 'neg':
                 type = '负面';
                 break;
-            case 'NEG':
-                type = '负面';
-                break;
             case 'neu':
-                type = '中性';
-                break;
-            case 'NEU':
                 type = '中性';
                 break;
         }

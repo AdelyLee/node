@@ -36,16 +36,18 @@ function mikeBriefing(briefingObj) {
 
 function mikeBriefingCell(briefingCellObj) {
     // 获取数据
-    var option = {};
+    var renderData = {};
     var method = briefingCellObj.method;
     if (method != "" && method != undefined) {
-        option = service[method]();
-        briefingCellObj.option = option;
+        renderData = service[method]();
+        briefingCellObj.option = renderData.option;
+        briefingCellObj.description = renderData.description;
 
+        console.log("briefingCellObj.description", briefingCellObj.description);
         // according to the option create the image
         node_echarts({
             path: __dirname + '/images/' + briefingCellObj.chartId + '.png',
-            option: option,
+            option: JSON.parse(briefingCellObj.option),
             width:  800,
             height: 500
         });
@@ -61,7 +63,6 @@ function mikeBriefingCell(briefingCellObj) {
         for (var item of briefingCellChildren) {
             briefingCells.push(mikeBriefingCell(item));
         }
-
     }
 
     return briefingCellObj;

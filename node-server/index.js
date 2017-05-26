@@ -23,8 +23,7 @@ app.get('/briefingJson', function (req, res) {
 		console.log('The file has been saved!');
 	});
 
-
-	// res.end(briefingJson);
+	res.end(briefingJson);
 });
 
 

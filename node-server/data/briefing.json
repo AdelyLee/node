@@ -6,10 +6,10 @@
     "issue": "2017年第5期",
     "outline": "2月份,安全生产相关舆情约115700篇，比1月份减少了16.7%。 其中网络媒体是本月的舆情主阵地，微信占比较上月有所下降",
     "briefingBody": [{
-        "level": "1",
+        "level": "level-one",
         "title": "一、與情综述",
         "children": [{
-            "level": "2",
+            "level": "level-two",
             "title": "载体分布情况",
             "imageUrl": "",
             "option": {},
@@ -19,7 +19,7 @@
             "chartId": "article-type-pie-chart",
             "method": "getArticleTypeChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "事故相关区域分析",
             "imageUrl": "",
             "option": {},
@@ -29,7 +29,7 @@
             "chartId": "accident-area-chart",
             "method": "getAccidentAreaChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "(一) 5月安全生产與情趋势",
             "imageUrl": "",
             "option": {},
@@ -39,7 +39,7 @@
             "chartId": "article-trend-chart",
             "method": "getArticleTrendChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "(二) 5月安全生产新闻传播舆论热度",
             "imageUrl": "",
             "option": {},
@@ -49,14 +49,13 @@
             "chartId": "news-hot-point",
             "method": "getArticleHotPointChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "(三) 5月安全生产热点新闻解析",
             "imageUrl": "",
-            "option": {},
             "children": [],
             "method": ""
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "新闻情感正负面分析",
             "imageUrl": "",
             "option": {},
@@ -66,7 +65,7 @@
             "chartId": "news-emotion-pie-chart",
             "method": "getNewsEmotionPieChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "主流媒体报道统计",
             "imageUrl": "",
             "option": {},
@@ -76,10 +75,9 @@
             "chartId": "media-bar-chart",
             "method": "getMediaBarChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "热点词词云分析",
             "imageUrl": "",
-            "option": {},
             "description": "",
             "children": [],
             "chartType": "keywordsCloud",
@@ -87,10 +85,10 @@
             "method": ""
         }]
     }, {
-        "level": "1",
+        "level": "level-one",
         "title": "二、安全生产事故聚焦",
         "children": [{
-            "level": "2",
+            "level": "level-two",
             "title": "1. 本月事故情况",
             "imageUrl": "",
             "option": {},
@@ -100,12 +98,11 @@
             "chartId": "month-accident-bar-chart",
             "method": "getMonthAccidentChart"
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "2. 事故分析",
             "imageUrl": "",
-            "option": {},
             "children": [{
-                "level": "3",
+                "level": "level-three",
                 "title": "事故类型分布图",
                 "imageUrl": "",
                 "option": {},
@@ -115,7 +112,7 @@
                 "chartId": "accident-type-pie-chart",
                 "method": "getAccidentTypeChart"
             },{
-                "level": "3",
+                "level": "level-three",
                 "title": "事故地域分布图",
                 "imageUrl": "",
                 "option": {},
@@ -126,25 +123,22 @@
                 "method": "getAccidentMapChart"
             }]
         },{
-            "level": "2",
+            "level": "level-two",
             "title": "3. 相关言论分析",
             "imageUrl": "",
-            "option": {},
             "children": [{
-                "level": "3",
+                "level": "level-three",
                 "title": "事故相关言论占比分析",
                 "imageUrl": "",
-                "option": {},
                 "description": "",
                 "children": [],
                 "chartType": "pie",
                 "chartId": "comment-pie-chart",
                 "method": ""
             },{
-                "level": "3",
+                "level": "level-three",
                 "title": "事故相关言论关键词词云",
                 "imageUrl": "",
-                "option": {},
                 "description": "",
                 "children": [],
                 "chartType": "keywordsCloud",
